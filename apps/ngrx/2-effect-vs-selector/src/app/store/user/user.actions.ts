@@ -12,3 +12,8 @@ export const loadUsersFailure = createAction(
   '[User] Load Users Failure',
   props<{ error: unknown }>(),
 );
+
+export const toggleUserIsAdmin = createAction(
+  '[User] Toggle Is Admin',
+  props<{ isAdmin: boolean }>(),
+);
