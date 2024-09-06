@@ -1,9 +1,29 @@
 import { Component } from '@angular/core';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
   standalone: true,
   imports: [],
   selector: 'app-root',
+  animations: [
+    // Animation for fading paragraphs in
+    trigger('fadeIn', [
+      state('void', style({ opacity: 0 })),
+      transition(':enter', [
+        animate('1s', style({ opacity: 1 }))
+      ])
+    ])
+
+      // Staggered animation for list items
+      trigger('staggerList', [
+      transition(':enter', [
+        query('.list-item', [
+          style({ opacity: 0 }),
+          stagger(100, animate('1s', style({ opacity: 1 })))
+        ], { optional: true })
+      ])
+    ])
+  ],
   styles: `
     section {
       @apply flex flex-1 flex-col gap-5;
@@ -19,7 +39,7 @@ import { Component } from '@angular/core';
   `,
   template: `
     <div class="mx-20 my-40 flex gap-5">
-      <section>
+      <section [@fadeIn]>
         <div>
           <h3>2008</h3>
           <p>
@@ -51,7 +71,7 @@ import { Component } from '@angular/core';
         </div>
       </section>
 
-      <section>
+      <section [@staggerList]>
         <div class="list-item">
           <span>Name:</span>
           <span>Samuel</span>
@@ -85,4 +105,4 @@ import { Component } from '@angular/core';
     </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent { }
