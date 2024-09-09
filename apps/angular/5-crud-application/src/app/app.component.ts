@@ -1,51 +1,37 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { randText } from '@ngneat/falso';
+import { Component, inject, OnInit } from '@angular/core';
+import { TodoItemComponent } from './Components/todo-item.component';
+import { Todo } from './Model/todo';
+import { TodosStore } from './Store/todo.store';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TodoItemComponent],
   selector: 'app-root',
   template: `
-    <div *ngFor="let todo of todos">
-      {{ todo.title }}
-      <button (click)="update(todo)">Update</button>
-    </div>
+    @for (todo of store.todos(); track todo.id) {
+      <app-todo-item
+        [todo]="todo"
+        (onUpdate)="update($event)"
+        (onDelete)="delete($event)"></app-todo-item>
+    } @empty {
+      <span>Loading...</span>
+    }
   `,
   styles: [],
 })
 export class AppComponent implements OnInit {
-  todos!: any[];
-
-  constructor(private http: HttpClient) {}
+  readonly store = inject(TodosStore);
 
   ngOnInit(): void {
-    this.http
-      .get<any[]>('https://jsonplaceholder.typicode.com/todos')
-      .subscribe((todos) => {
-        this.todos = todos;
-      });
+    this.store.getTodos();
   }
 
-  update(todo: any) {
-    this.http
-      .put<any>(
-        `https://jsonplaceholder.typicode.com/todos/${todo.id}`,
-        JSON.stringify({
-          todo: todo.id,
-          title: randText(),
-          body: todo.body,
-          userId: todo.userId,
-        }),
-        {
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        },
-      )
-      .subscribe((todoUpdated: any) => {
-        this.todos[todoUpdated.id - 1] = todoUpdated;
-      });
+  update(todo: Todo) {
+    this.store.updateTodo(todo);
+  }
+
+  delete(todo: Todo) {
+    this.store.deleteTodo(todo);
   }
 }
